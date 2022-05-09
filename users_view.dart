@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-
-//import 'package:login_sharedprefernece/user.dart';
-//import 'package:login_sharedprefernece/user.dart';
 import 'package:provider/provider.dart';
 import 'package:login_sharedprefernece/providers/user_provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -16,12 +13,18 @@ class UsersView extends StatefulWidget {
 }
 
 class _UsersViewState extends State<UsersView> {
+  void updateUi() {
+    setState(() {
+      ulist = context.read<UserProvider>().getUser;
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
 
     super.initState();
-    ulist = context.read<UserProvider>().getUser;
+    updateUi();
   }
 
   @override
@@ -50,13 +53,30 @@ class _UsersViewState extends State<UsersView> {
                         // A SlidableAction can have an icon and/or a label.
                         SlidableAction(
                           onPressed: (context) {
-                            context.read<UserProvider>().deleteItem(i);
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) => AlertDialog(
+                                      content: const Text(
+                                          'are you really want to delete'),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context, 'Yes');
+                                              context
+                                                  .read<UserProvider>()
+                                                  .deleteItem(i);
+                                              updateUi();
+                                            } //upadate the ui
+                                            ,
+                                            child: const Text('Yes')),
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context, 'no');
+                                            },
+                                            child: const Text('No'))
+                                      ],
+                                    ));
                           },
-                          // onPressed: (context) {
-                          //   setState(() {
-                          //     ulist.removeAt(i);
-                          //   });
-                          // },
                           backgroundColor: Colors.blueGrey,
                           foregroundColor: Colors.white,
                           icon: Icons.delete,
@@ -108,8 +128,10 @@ class _UsersViewState extends State<UsersView> {
               )),
     );
   }
-
-  void updateItem(int i) {
-    context.read<UserProvider>().deleteItem(i);
-  }
 }
+
+
+
+
+
+
